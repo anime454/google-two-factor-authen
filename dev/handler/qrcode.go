@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 
-	service "github.com/anime454/google-two-factor-authen/service"
+	"github.com/anime454/google-two-factor-authen/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,8 @@ func NewQrCodeHandler(qr service.QrCodeService) qrCodeHandler {
 
 func (qrhl qrCodeHandler) Generate() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		png, err := qrhl.qrSv.Generate()
+		username := "mockupUsername@gmail.com"
+		png, err := qrhl.qrSv.Generate(username)
 		if err != nil {
 			fmt.Println("QrCode generate handler error ", err)
 			c.JSON(500, gin.H{

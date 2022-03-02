@@ -4,18 +4,26 @@ import (
 	"log"
 	"net/http"
 
-	handler "github.com/anime454/google-two-factor-authen/handler"
-	service "github.com/anime454/google-two-factor-authen/service"
+	"github.com/anime454/google-two-factor-authen/handler"
+	"github.com/anime454/google-two-factor-authen/repository"
+	"github.com/anime454/google-two-factor-authen/service"
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// userRepo := repository.NewUserRepositoryDB(db)
-	qrservice := service.NewQrCodeService()
-	qrhandler := handler.NewQrCodeHandler(qrservice)
+	mc := memcache.New("172.17.0.3:11211")
+	qrRepo := repository.NewQrCodeRepositoryDB(mc)
+	qrService := service.NewQrCodeService(qrRepo)
+	qrHandler := handler.NewQrCodeHandler(qrService)
+
+	tfRepo := repository.NewTwoFactorRepositoryDB(mc)
+	tfService := service.NewTwoFactorService(tfRepo)
+	tfHandler := handler.NewTwoFactorHandler(tfService)
 
 	server := gin.Default()
-	server.GET("/getQrCode", qrhandler.Generate())
+	server.GET("/getQrCode", qrHandler.Generate())
+	server.POST("/validateToken", tfHandler.ValidateToken())
 
 	srv := &http.Server{
 		Addr:    ":" + "10002",

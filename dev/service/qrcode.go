@@ -1,5 +1,5 @@
-package qrcode
+package service
 
 type QrCodeService interface {
-	Generate() ([]byte, error)
+	Generate(string) ([]byte, error)
 }
